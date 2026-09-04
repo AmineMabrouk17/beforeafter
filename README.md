@@ -76,6 +76,8 @@ Full workflow: **[SKILL.md](SKILL.md)**.
 ```
 SKILL.md              # the skill (collect → link → order → conflict-check → render)
 templates/flow.html   # offline HTML template (4 graphs, inline CSS only)
+templates/preview-link.mjs  # magic login-link minter (one-click preview login)
+templates/shots/      # demo-session screenshot kit (auth.setup + shots.spec + README)
 install.sh            # bash one-line installer
 install.ps1           # PowerShell one-line installer
 ```

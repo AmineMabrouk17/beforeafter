@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REPO — Pipeline & Feature Flows</title>
+<style>
+:root{--bg:#0b1020;--card:#151d33;--line:#2a3a5f;--txt:#e8eefc;--mut:#93a3c4;--acc:#5aa2ff}
+*{box-sizing:border-box}body{background:var(--bg);color:var(--txt);font:14px/1.45 system-ui,sans-serif;padding:22px;max-width:1180px}
+h2{font-size:15px;margin:22px 0 10px;color:var(--acc);text-transform:uppercase;letter-spacing:.06em}
+.sub{color:var(--mut);font-size:13px}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.node{background:#0e1530;border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:center}
+.node b{display:block;font-size:13px}.node span{font-size:11.5px;color:var(--mut)}
+.arrow{text-align:center;color:var(--acc);font-size:18px}.row{display:flex;gap:10px}.row .node{flex:1}
+.grid{display:grid;gap:12px}.g2{grid-template-columns:1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;border-radius:20px;padding:2px 8px;margin-bottom:4px;background:#1d3a6e;color:#9cc4ff}
+.pill{font-size:11px;border:1px solid var(--line);border-radius:8px;padding:3px 8px;background:#0e1530}
+.src{font-size:10.5px;color:var(--mut);font-family:consolas,monospace}
+@media(max-width:800px){.g2,.g4{grid-template-columns:1fr}.row{flex-direction:column}}
+</style></head><body>
+<h1>REPO — Pipeline &amp; Feature Enhancement Map</h1>
+<p class="sub">Source: gh API, no clone — OWNER/REPO · DATE · N open PRs</p>
+<h2>1 · Merge pipeline (dependency order)</h2>
+<div class="card"><div class="row">
+<div class="node"><span class="tag">PR #N · FOUNDATION</span><b>Title</b><span>key files</span></div>
+<div class="node"><span class="tag">PR #N · INDEPENDENT</span><b>Title</b><span>ship anytime</span></div>
+</div><div class="arrow">▼</div><div class="node"><span class="tag">PR #N · FINAL</span><b>Title</b><span>depends on all above</span></div></div>
+<h2>2 · User flow: today → after pipeline</h2>
+<div class="grid g2"><div class="card"><b>Today</b><div class="node">Entry<span>files</span></div><div class="arrow">▼</div><div class="node">Core screen<span>generic behavior + pain</span></div></div>
+<div class="card"><b>After</b><div class="node">Entry + gate (NEW)<span>router by profile/flag</span></div><div class="arrow">▼</div><div class="node">Branched flows<span>one node per persona/feature</span></div></div></div>
+<h2>3 · Per-persona / feature matrix</h2>
+<div class="grid g4"><div class="card"><span class="tag">Track A</span><div><span class="pill">KPI 1</span> <span class="pill">KPI 2</span></div><p class="src">files</p></div></div>
+<h2>4 · Code enhancement footprint</h2>
+<div class="grid g2"><div class="card"><b>DB / server</b><div class="node">migration + lib<span>+add/-del</span></div></div>
+<div class="card"><b>UI</b><div class="node">components<span>+add/-del</span></div></div></div>
+<p class="sub">Merge order: fix-anytime → foundation → parallel → final.</p>
+</body></html>

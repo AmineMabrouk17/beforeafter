@@ -1,33 +1,218 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>REPO — Pipeline & Feature Flows</title>
 <style>
-:root{--bg:#0b1020;--card:#151d33;--line:#2a3a5f;--txt:#e8eefc;--mut:#93a3c4;--acc:#5aa2ff}
-*{box-sizing:border-box}body{background:var(--bg);color:var(--txt);font:14px/1.45 system-ui,sans-serif;padding:22px;max-width:1180px}
-h2{font-size:15px;margin:22px 0 10px;color:var(--acc);text-transform:uppercase;letter-spacing:.06em}
+:root{--bg:#0b1020;--card:#151d33;--line:#2a3a5f;--txt:#e8eefc;--mut:#93a3c4;--acc:#5aa2ff;
+      --green:#4ade80;--amber:#fbbf24;--red:#f87171;--violet:#a78bfa}
+*{box-sizing:border-box}body{background:var(--bg);color:var(--txt);font:14px/1.45 system-ui,sans-serif;padding:22px;max-width:1180px;margin:0 auto}
+h1{font-size:22px;margin:4px 0 4px}h2{font-size:15px;margin:26px 0 10px;color:var(--acc);text-transform:uppercase;letter-spacing:.06em}
 .sub{color:var(--mut);font-size:13px}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
-.node{background:#0e1530;border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:center}
-.node b{display:block;font-size:13px}.node span{font-size:11.5px;color:var(--mut)}
-.arrow{text-align:center;color:var(--acc);font-size:18px}.row{display:flex;gap:10px}.row .node{flex:1}
-.grid{display:grid;gap:12px}.g2{grid-template-columns:1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
-.tag{display:inline-block;font-size:10.5px;font-weight:700;border-radius:20px;padding:2px 8px;margin-bottom:4px;background:#1d3a6e;color:#9cc4ff}
+.node{background:#0e1530;border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:180px;position:relative}
+.node b{display:block;font-size:13px}.node span{font-size:11.5px;color:var(--mut)}.node .pr-num{font-size:10.5px;font-weight:700;color:var(--acc)}
+.arrow{color:var(--acc);font-size:18px}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;border-radius:20px;padding:2px 8px;margin:2px 2px 2px 0;background:#1d3a6e;color:#9cc4ff}
 .pill{font-size:11px;border:1px solid var(--line);border-radius:8px;padding:3px 8px;background:#0e1530}
-.src{font-size:10.5px;color:var(--mut);font-family:consolas,monospace}
-@media(max-width:800px){.g2,.g4{grid-template-columns:1fr}.row{flex-direction:column}}
+.src{font-size:10.5px;color:var(--mut);font-family:consolas,monospace;word-break:break-word}
+.badge{display:inline-block;font-size:10px;font-weight:700;border-radius:6px;padding:1px 6px;margin:2px 2px 0 0;border:1px solid var(--line)}
+.b.live{color:var(--green);border-color:rgba(74,222,128,.5)}.b.eu{color:var(--text)}
+.b.draft{color:var(--mut)}.b.fail{color:var(--red);border-color:rgba(248,113,113,.5)}.b.conf{color:var(--red);border-color:rgba(248,113,113,.5)}
+.b.stale{color:var(--amber);border-color:rgba(251,191,36,.5)}.b.rebase{color:var(--amber);border-color:rgba(251,191,36,.5)}
+.b.ok{color:var(--green);border-color:rgba(74,222,128,.35)}
+.row{display:flex;gap:10px;align-items:flex-start}.row .node{flex:1}
+.dag-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.dag-row .node{flex:0 1 auto}
+.dep-line{color:var(--mut);font-size:10.5px;text-align:center;margin:-4px 0 6px}
+b.depends,.depends b{color:var(--txt)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.duo figure{margin:0;background:#0e1530;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.duo figcaption{padding:6px 10px;font-size:11.5px;color:var(--mut)}.duo figcaption b{color:var(--txt)}
+.duo img{display:block;width:100%;height:auto;border-bottom:1px solid var(--line)}
+.matrix{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.matrix .card{display:flex;flex-direction:column;gap:4px}
+.bar-track{display:flex;gap:2px;height:16px;border-radius:3px;overflow:hidden;background:#0e1530}
+.bar.add{background:var(--green)}.bar.del{background:var(--red)}.bar.none{background:var(--line)}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:12.5px}
+th{color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.foot{color:var(--mut);font-size:11.5px;margin-top:12px;line-height:1.6}
+.collide{color:var(--red)}
+@media(max-width:800px){.duo{grid-template-columns:1fr}.row{flex-direction:column}}
 </style></head><body>
+<script type="application/json" id="flows-data">
+{
+  "repo": "OWNER/REPO",
+  "defaultBranch": "main",
+  "date": "DATE",
+  "shotsDir": "docs/shots",
+  "shotsRawBase": "",
+  "mergeOrder": ["83", "82", "84", "85", "86", "87"],
+  "footnote": "",
+  "personas": [
+    { "id": "salaried", "label": "Salaried", "kpis": ["Pay-cycle KPIs"], "prs": [82, 84], "files": ["dashboard/*"] },
+    { "id": "freelancer", "label": "Freelancer", "kpis": ["Rolling averages", "Tax reserve"], "prs": [85], "files": ["dashboard/*"] },
+    { "id": "business", "label": "Business", "kpis": ["Profit view", "Runway"], "prs": [86], "files": ["dashboard/*"] }
+  ],
+  "prs": [
+    {
+      "num": 82, "title": "income profile setting", "branch": "feat/issue-69-*", "head": "965fb39",
+      "base": "main", "add": 374, "del": 2, "files": 10, "filesList": ["lib/profiles.ts", "app/(auth)/onboarding/*"],
+      "issues": [69], "dependsOn": [], "blocks": [84, 85, 86],
+      "status": "review", "checks": "pass", "mergeable": true, "conflictsWithBase": false,
+      "staleDays": 2, "userFacing": true, "personas": ["salaried"],
+      "shots": ["landing-after-#82.png", "dashboard-after-#82.png", "onboarding-after-#82.png", "navbar-editor-after-#82.png"],
+      "shotLine": "PR #82 income-profile-setup",
+      "beforeShot": "landing-before.png", "afterShot": "landing-after-#82.png",
+      "collisions": [{ "with": 85, "files": ["dashboard/*"] }],
+      "logic": ["onboarding gate must not redirect the synthetic unonboarded user"]
+    },
+    { "num": 83, "title": "landing drag-scrollbar fix", "branch": "fix/issue-62-*", "head": "7b6de72",
+      "base": "main", "add": 73, "del": 5, "files": 2, "filesList": ["components/landing/*"],
+      "issues": [62], "dependsOn": [], "blocks": [],
+      "status": "ready", "checks": "pass", "mergeable": true, "conflictsWithBase": false,
+      "staleDays": 3, "userFacing": true, "personas": [],
+      "shots": ["landing-after-#83.png"], "shotLine": "PR #83 landing",
+      "beforeShot": "landing-before.png", "afterShot": "landing-after-#83.png",
+      "collisions": [], "logic": [] },
+    { "num": 84, "title": "pay-cycle KPIs", "branch": "feat/issue-70-*", "head": "468d439",
+      "base": "main", "add": 346, "del": 30, "files": 5, "filesList": ["dashboard/*", "lib/*"],
+      "issues": [70], "dependsOn": [82], "blocks": [87],
+      "status": "review", "checks": "pending", "mergeable": true, "conflictsWithBase": false,
+      "staleDays": 2, "userFacing": true, "personas": ["salaried"],
+      "shots": ["dashboard-after-#84.png", "onboarding-after-#84.png"], "shotLine": "PR #84 pay-cycle",
+      "beforeShot": "dashboard-before.png", "afterShot": "dashboard-after-#84.png",
+      "collisions": [{ "with": 85, "files": ["lib/*"] }], "logic": ["calendar-vs-cycle anchor assumption"] }
+  ]
+}
+</script>
 <h1>REPO — Pipeline &amp; Feature Enhancement Map</h1>
-<p class="sub">Source: gh API, no clone — OWNER/REPO · DATE · N open PRs</p>
-<h2>1 · Merge pipeline (dependency order)</h2>
-<div class="card"><div class="row">
-<div class="node"><span class="tag">PR #N · FOUNDATION</span><b>Title</b><span>key files</span></div>
-<div class="node"><span class="tag">PR #N · INDEPENDENT</span><b>Title</b><span>ship anytime</span></div>
-</div><div class="arrow">▼</div><div class="node"><span class="tag">PR #N · FINAL</span><b>Title</b><span>depends on all above</span></div></div>
-<h2>2 · User flow: today → after pipeline</h2>
-<div class="grid g2"><div class="card"><b>Today</b><div class="node">Entry<span>files</span></div><div class="arrow">▼</div><div class="node">Core screen<span>generic behavior + pain</span></div></div>
-<div class="card"><b>After</b><div class="node">Entry + gate (NEW)<span>router by profile/flag</span></div><div class="arrow">▼</div><div class="node">Branched flows<span>one node per persona/feature</span></div></div></div>
-<h2>3 · Per-persona / feature matrix</h2>
-<div class="grid g4"><div class="card"><span class="tag">Track A</span><div><span class="pill">KPI 1</span> <span class="pill">KPI 2</span></div><p class="src">files</p></div></div>
-<h2>4 · Code enhancement footprint</h2>
-<div class="grid g2"><div class="card"><b>DB / server</b><div class="node">migration + lib<span>+add/-del</span></div></div>
-<div class="card"><b>UI</b><div class="node">components<span>+add/-del</span></div></div></div>
-<p class="sub">Merge order: fix-anytime → foundation → parallel → final.</p>
+<p class="sub">Source: gh API + repo visual pipeline · OWNER/REPO · DATE</p>
+<div id="app"></div>
+<script>
+(function () {
+  "use strict";
+  var D = JSON.parse(document.getElementById("flows-data").textContent);
+  var app = document.getElementById("app");
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  }); };
+  var PR = {}; D.prs.forEach(function (p) { PR[p.num] = p; });
+  var shotURL = function (name) {
+    return (D.shotsRawBase ? D.shotsRawBase.replace(/\/$/, "") + "/" : D.shotsDir + "/") + name;
+  };
+  var shotImg = function (name, caption) {
+    return '<figure><img src="' + esc(shotURL(name)) + '" alt="' + esc(caption || name) + '" loading="lazy">' +
+      '<figcaption>' + esc(caption || name) + '</figcaption></figure>';
+  };
+  var badges = function (p) {
+    var b = [];
+    if (p.isDraft === true) b.push('<span class="badge b draft">draft</span>');
+    if (p.checks === "fail") b.push('<span class="badge b fail">checks failing</span>');
+    else if (p.checks === "pending") b.push('<span class="badge b rebase">checks pending</span>');
+    if (p.mergeable === false) b.push('<span class="badge b conf">not mergeable</span>');
+    if (p.conflictsWithBase === true) b.push('<span class="badge b conf">conflicts w/ base</span>');
+    if ((p.staleDays || 0) >= 14) b.push('<span class="badge b stale">stale ' + p.staleDays + 'd</span>');
+    if (p.needsRebase === true) b.push('<span class="badge b rebase">rebased</span>');
+    if (!b.length) b.push('<span class="badge b ok">ready</span>');
+    return '<div>' + b.join("") + '</div>';
+  };
+  var nodeHTML = function (p, tierLabel) {
+    var t = tierLabel ? '<span class="tag">' + esc(tierLabel) + '</span>' : "";
+    return '<div class="node"><span class="pr-num">PR #' + p.num + '</span> ' + t +
+      '<b>' + esc(p.title) + '</b>' +
+      '<span>+' + p.add + ' / −' + p.del + ' · ' + p.files + ' files · head ' + esc(p.head) + '</span>' +
+      badges(p) +
+      '<span class="src">' + esc((p.filesList || []).slice(0, 3).join(" · ")) + '</span></div>';
+  };
+  var issuesRef = function (p) {
+    return (p.issues || []).map(function (i) { return "#" + i; }).join(", ") || "—";
+  };
+
+  // ---- 1 · Merge pipeline (depth-layered DAG) ------------------------------
+  var layers = {};
+  D.prs.forEach(function (p) { var d = p.depth == null ? 0 : p.depth; (layers[d] = layers[d] || []).push(p); });
+  var maxD = Math.max.apply(null, Object.keys(layers).map(Number));
+  var html = '<h2>1 · Merge pipeline (dependency order)</h2><div class="card">';
+  for (var d = 0; d <= maxD; d++) {
+    var label = d === 0 ? "FOUNDATION" : (d === maxD && layers[d].length === 1 ? "FINAL" : "PARALLEL");
+    html += '<div class="dag-row">' + layers[d].map(function (p) {
+      return nodeHTML(PR[p.num] || p, label + " · depth " + d);
+    }).join('') + '</div>';
+    if (d < maxD) html += '<div class="dep-line">▼ depends layers +1..+' + (maxD - d) + '</div>';
+  }
+  html += '<div class="foot">Merge order: ' + esc(D.mergeOrder.map(function (n) { return "#" + n; }).join(" → ")) +
+    '</div></div>';
+
+  // ---- 2 · User flow today → after (per-PR before/after shots) -------------
+  html += '<h2>2 · User flow: today → after (per PR)</h2>';
+  var flowPRs = D.prs.filter(function (p) { return p.userFacing; });
+  if (!flowPRs.length) {
+    html += '<div class="card sub">No user-facing PRs in the JSON blob — add "userFacing": true to PRs that change screens.</div>';
+  }
+  flowPRs.forEach(function (p) {
+    var pairs = [];
+    (p.shots || []).forEach(function (s) {
+      pairs.push({ before: s.replace(/-after-#\d+\.png$/, "-before.png"), after: s, screen: s.replace(/-after-#\d+\.png$/, "") });
+    });
+    if (!pairs.length) pairs.push({ before: p.beforeShot, after: p.afterShot, screen: "dashboard" });
+    html += '<div class="card"><b>PR #' + p.num + ' · ' + esc(p.title) + '</b> ' +
+      '<span class="pill">' + esc(p.shotLine || "") + '</span>' +
+      badges(p);
+    pairs.forEach(function (pr) {
+      html += '<div class="duo" style="margin-top:8px">' +
+        shotImg(pr.before, "before · " + D.defaultBranch + " · " + pr.screen) +
+        shotImg(pr.after, "after · PR #" + p.num + " · " + pr.screen) +
+        '</div>';
+    });
+    html += (p.logic && p.logic.length ? '<div class="foot">logic check: ' + p.logic.map(function (l) {
+      return '<span class="tag">' + esc(l) + '</span>';
+    }).join("") + '</div>' : '') + '</div>';
+  });
+
+  // ---- 3 · Per-persona / feature matrix ------------------------------------
+  html += '<h2>3 · Per-persona / feature matrix</h2><div class="matrix">';
+  (D.personas || []).forEach(function (pg) {
+    html += '<div class="card"><span class="tag">' + esc(pg.label) + '</span>' +
+      '<div>' + (pg.kpis || []).map(function (k) { return '<span class="pill">' + esc(k) + '</span>'; }).join(" ") + '</div>' +
+      '<div>' + (pg.prs || []).map(function (n) {
+        var p = PR[n]; return p ? '<span class="tag">PR #' + n + ' · ' + esc(p.title) + '</span>' : "";
+      }).join(" ") + '</div>' +
+      '<p class="src">' + esc((pg.files || []).join(" · ")) + '</p></div>';
+  });
+  html += '</div>';
+
+  // ---- 4 · Code footprint + pinned collisions ------------------------------
+  var maxAdd = Math.max.apply(null, D.prs.map(function (p) { return p.add || 1; }));
+  html += '<h2>4 · Code footprint</h2>' +
+    '<div class="card"><div class="row" style="margin-bottom:10px">' +
+    '<div class="card" style="flex:1"><b>DB / server</b></div>' +
+    '<div class="card" style="flex:1"><b>UI</b></div></div>';
+  D.prs.forEach(function (p) {
+    var w = Math.round((p.add / maxAdd) * 100);
+    html += '<div class="sub" style="margin-top:6px">PR #' + p.num + ' · ' + esc(p.title) + '</div>' +
+      '<div class="bar-track"><div class="bar add" style="width:' + w + '%"></div>' +
+      '<div class="bar del" style="width:' + Math.max(2, Math.round((p.del / maxAdd) * 100)) + '%"></div></div>' +
+      '<div class="src">+' + p.add + ' / −' + p.del + '</div>';
+  });
+  var collisions = [];
+  D.prs.forEach(function (p) { (p.collisions || []).forEach(function (c) {
+    collisions.push({ a: p.num, b: c.with, files: c.files });
+  }); });
+  if (collisions.length) {
+    html += '<h2 style="margin-top:16px">Colliding files</h2><table><thead><tr><th>PRs</th><th>Paths</th></tr></thead><tbody>';
+    collisions.forEach(function (c) {
+      html += '<tr><td class="collide">#' + c.a + ' × #' + c.b + '</td><td class="src">' +
+        esc(c.files.join(", ")) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  html += '</div>';
+
+  html += '<div class="card" style="margin-top:18px"><div class="foot">' +
+    'Source: gh API (' + esc(D.date) + ') · ' + esc(D.repo) + ' · default branch `' + esc(D.defaultBranch) + '` · ' +
+    D.prs.length + ' open PRs · merge order: ' +
+    esc(D.mergeOrder.map(function (n) { return "#" + n; }).join(" → ")) +
+    (D.footnote ? '<br>' + esc(D.footnote) : '') +
+    '</div></div>';
+
+  app.innerHTML = html;
+})();
+</script>
 </body></html>

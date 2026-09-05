@@ -6,7 +6,7 @@
 // (they are bearer credentials, single-use, short expiry). Demo account must hold
 // demo-only data with normal RLS applied.
 //
-// Works with the standard PKCE callback: GET /auth/callback?code=...&next=/dashboard
+// Works with the standard PKCE callback: GET /auth/callback?code=...&next=<landing>
 // that calls supabase.auth.exchangeCodeForSession(code).
 
 const preview = process.argv[2];
@@ -30,7 +30,7 @@ const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
   body: JSON.stringify({
     type: "magiclink",
     email: DEMO_EMAIL,
-    options: { redirectTo: `${preview.replace(/\/$/, "")}/auth/callback?next=/dashboard` },
+    options: { redirectTo: `${preview.replace(/\/$/, "")}/auth/callback` },
   }),
 });
 const data = await res.json();

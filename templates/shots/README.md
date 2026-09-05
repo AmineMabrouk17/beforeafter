@@ -25,8 +25,8 @@ so no accounts are created and nothing is patched at capture time.
    exists for the same head OID (pass `HEAD_OID` + `CAPTURE_SUFFIX`), so
    re-runs on unchanged PRs are instant.
 5. **Per-feature screens** — a `capture-map` (branch regex → screens) tells the
-   beforeafter skill which shots each PR owns. Defaults: landing + dashboard;
-   features add e.g. onboarding / navbar-editor.
+   beforeafter skill which shots each PR owns. Defaults: the public/landing
+   screen + the main app screen; features add e.g. settings / admin screens.
 
 ## Per-PR capture (fast path — worktrees + parallel + OID skip)
 

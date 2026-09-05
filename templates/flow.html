@@ -145,7 +145,7 @@ th{color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase;lett
     (p.shots || []).forEach(function (s) {
       pairs.push({ before: s.replace(/-after-#\d+\.png$/, "-before.png"), after: s, screen: s.replace(/-after-#\d+\.png$/, "") });
     });
-    if (!pairs.length) pairs.push({ before: p.beforeShot, after: p.afterShot, screen: "dashboard" });
+    if (!pairs.length) pairs.push({ before: p.beforeShot, after: p.afterShot, screen: "main" });
     html += '<div class="card"><b>PR #' + p.num + ' · ' + esc(p.title) + '</b> ' +
       '<span class="pill">' + esc(p.shotLine || "") + '</span>' +
       badges(p);

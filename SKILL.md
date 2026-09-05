@@ -96,8 +96,8 @@ The single biggest run-to-run cost is the agent thinking about auth. Remove the 
 
 ## Naming conventions (keep these, everywhere)
 
-- Screenshots: `{screen}-before.png` (once per screen) and `{screen}-after-#{prNumber}.png` (per PR). Dashboard shots for PR 82 live at `dashboard-after-#82.png`.
-- Capture targets: a `capture-map`-style mapping from PR-branch regex → screens (landing + dashboard defaults, feature branches add e.g. onboarding / navbar-editor). The map tells you *which shots each PR owns* — use it to assemble the before/after section.
+- Screenshots: `{screen}-before.png` (once per screen) and `{screen}-after-#{prNumber}.png` (per PR). A PR's shots live at the screen's name, e.g. `cart-after-#12.png`.
+- Capture targets: a `capture-map`-style mapping from PR-branch regex → screens (defaults: the public/landing screen + the main app screen; feature branches add e.g. settings or admin screens). The map tells you *which shots each PR owns* — use it to assemble the before/after section.
 - Data blob: `<Repo>-flows.json` alongside `<Repo>-Flows.html`.
 
 ## Pitfalls

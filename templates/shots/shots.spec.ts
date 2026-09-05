@@ -19,8 +19,8 @@ const CAPTURE_SUFFIX = process.env.CAPTURE_SUFFIX ?? `after-#${PR_NUM}`;
 
 // TODO(repo): list the screens your issues touch + the selector that proves load
 const SCREENS: Array<{ name: string; path: string; ready: string }> = [
-  { name: "landing", path: "/", ready: "main" },
-  { name: "dashboard", path: "/dashboard", ready: "main" },
+  { name: "home", path: "/", ready: "main" },
+  { name: "app", path: "/app", ready: "main" },
 ];
 
 const fs = require("node:fs");

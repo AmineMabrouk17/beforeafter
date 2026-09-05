@@ -15,6 +15,6 @@ setup("authenticate as demo user", async ({ page }) => {
   await page.getByLabel(/password/i).fill(PASS);
   await page.getByRole("button", { name: /sign in|log in/i }).click();
   // TODO(repo): replace with a post-login assertion for your app
-  await expect(page).toHaveURL(/dashboard/, { timeout: 15000 });
+  await expect(page).toHaveURL(/\/(app|home)/, { timeout: 15000 });
   await page.context().storageState({ path: authFile });
 });

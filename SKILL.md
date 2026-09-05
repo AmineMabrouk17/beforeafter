@@ -81,10 +81,10 @@ The skill's real job is: **rank, order, conflict-DAG, and weave the repo's own s
 
 The single biggest run-to-run cost is the agent thinking about auth. Remove the thinking:
 
-- **One seam.** Every data-returning function must resolve its session through the repo's *central* session helper (e.g. `getUser()` in `lib/supabase/server.ts`) — never an inline `supabase.auth.getUser()` sprinkled through pages. Preview bypass + synthetic session live in exactly one module (`lib/auth/preview-bypass.ts`). One secret per run, exported once, shared by all workers.
-- **Guard it with a test, not a patch.** Repos that centralize the seam need **zero** capture-time patching. Add a guard spec/test that fails CI if `supabase.auth.getUser(` appears outside the central server module (see `templates/auth-bypass-guard.mjs`). If such a guard exists in the repo, prefer it — a patch script that rewrites `lib/*` at capture time (`patch-transactions.mjs`) is a smell to retire: it breaks the moment stanza shape changes.
+- **One seam (stack-agnostic).** Every data-returning function must resolve its session through the repo's *central* session helper — not an inline auth call sprinkled through pages. (Example: a supabase app centralizes on `getUser()` in `lib/supabase/server.ts`; doesn't inline `supabase.auth.getUser()`. Same idea for firebase/authjs/custom cookies — your stack will name it differently.) Preview bypass + synthetic session live in exactly one module (e.g. `lib/auth/preview-bypass.ts`). One secret per run, exported once, shared by all workers.
+- **Guard it with a test, not a patch.** Repos that centralize the seam need **zero** capture-time patching. Add a guard spec/test that fails CI if session resolution appears outside the central module — `templates/auth-bypass-guard.mjs` adapts to any stack via `--pattern` / `--symbol` / `--seam`. If such a guard exists in the repo, prefer it — a patch script that rewrites `lib/*` at capture time is a smell to retire: it breaks the moment stanza shape changes.
 - **Rule of thumb:** if capture requires editing repo source, the seam is wrong. Fix the repo once; not the run every time.
-- Preview bypass must stay inert in production: `VERCEL_ENV === "preview"` (or local-only flag), `PREVIEW_TEST_SECRET` present, plus a valid HMAC header with a short timestamp window (5 min) and timing-safe compare. No deterministic behavior change without the header.
+- Preview bypass must stay inert in production: only active in a dedicated preview/local/env gate (e.g. `VERCEL_ENV === "preview"`), `*_TEST_SECRET` present, plus a valid HMAC-signed header with a short timestamp window (~5 min) and timing-safe compare. No deterministic behavior change without the header.
 
 ## HTML Template Rules
 

@@ -1,39 +1,42 @@
 #!/usr/bin/env node
 // auth-bypass-guard.mjs — enforce the "one seam" rule so preview capture never
 // needs a patch script. Fails (exit 1) when:
-//   1. `supabase.auth.getUser(` appears anywhere OUTSIDE the central session
-//      module (default lib/supabase/server.ts) — inline session resolution.
-//   2. `getPreviewMockSession` (or equivalent bypass symbol) is referenced
+//   1. Your session-resolution pattern (default: `supabase.auth.getUser(`)
+//      appears anywhere OUTSIDE the central session module (default
+//      lib/supabase/server.ts) — inline session resolution.
+//   2. Your bypass symbol (default: `getPreviewMockSession`) is referenced
 //      outside the bypass module and the central server module.
 //
 // This is the test behind the SKILL.md rule: "if capture requires patching
 // lib/*, the seam is wrong — fix the repo once, not the run every time."
 // Once this guard is green, capture-time patching can be deleted entirely.
 //
+// Repo-adaptable for ANY auth stack — pass your own patterns for
+// non-supabase backends (firebase, authjs, custom cookie sessions, ...).
+//
 // Usage:
 //   node auth-bypass-guard.mjs [--root .] [--seam lib/supabase/server.ts] \
-//       [--bypass lib/auth/preview-bypass.ts]
+//       [--bypass lib/auth/preview-bypass.ts] \
+//       [--pattern "supabase\.auth\.getUser\("] [--symbol getPreviewMockSession]
 // Add it to your CI / package.json test script.
 
 import fs from "fs";
 import path from "path";
 
-const ROOT = path.resolve(process.argv.includes("--root")
-  ? process.argv[process.argv.indexOf("--root") + 1]
-  : ".");
-const SEAM = path.join(ROOT, process.argv.includes("--seam")
-  ? process.argv[process.argv.indexOf("--seam") + 1]
-  : "lib/supabase/server.ts");
-const BYPASS = path.join(ROOT, process.argv.includes("--bypass")
-  ? process.argv[process.argv.indexOf("--bypass") + 1]
-  : "lib/auth/preview-bypass.ts");
+const arg = (flag, fallback) =>
+  process.argv.includes(flag)
+    ? process.argv[process.argv.indexOf(flag) + 1]
+    : fallback;
 
-const INLINE_SESSION = /supabase\.auth\.getUser\(/;
-const BYPASS_REF = /getPreviewMockSession/;
+const ROOT = path.resolve(arg("--root", "."));
+const SEAM = path.join(ROOT, arg("--seam", "lib/supabase/server.ts"));
+const BYPASS = path.join(ROOT, arg("--bypass", "lib/auth/preview-bypass.ts"));
+const INLINE_SESSION = new RegExp(arg("--pattern", "supabase\\.auth\\.getUser\\("));
+const BYPASS_REF = new RegExp(arg("--symbol", "getPreviewMockSession"));
 
 const SKIP = new Set([
   "node_modules", ".next", ".vercel", ".git", ".tmp", ".turbo",
-  "BudgetIQ-Flows.html", "pnpm-lock.yaml", "package-lock.json", "yarn.lock",
+  "pnpm-lock.yaml", "package-lock.json", "yarn.lock",
 ]);
 
 function walk(dir) {
